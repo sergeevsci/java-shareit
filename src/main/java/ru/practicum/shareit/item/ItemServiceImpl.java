@@ -31,7 +31,7 @@ public class ItemServiceImpl implements ItemService {
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
         Item savedItem = itemRepository.save(item);
-        log.info("Item created: itemId={}, ownerId={}", savedItem.getId(), owner.getId());
+        log.info("Вещь создана: itemId={}, ownerId={}", savedItem.getId(), owner.getId());
         return ItemMapper.toDto(savedItem);
     }
 
@@ -39,17 +39,17 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
         Item item = getItem(itemId);
         if (!item.getOwner().getId().equals(userId)) {
-            throw new NotFoundException("Only owner can update item");
+            throw new NotFoundException("Редактировать вещь может только владелец");
         }
         if (itemDto.getName() != null) {
             if (itemDto.getName().isBlank()) {
-                throw new ValidationException("Item name must not be blank");
+                throw new ValidationException("Название вещи не должно быть пустым");
             }
             item.setName(itemDto.getName());
         }
         if (itemDto.getDescription() != null) {
             if (itemDto.getDescription().isBlank()) {
-                throw new ValidationException("Item description must not be blank");
+                throw new ValidationException("Описание вещи не должно быть пустым");
             }
             item.setDescription(itemDto.getDescription());
         }
@@ -57,7 +57,7 @@ public class ItemServiceImpl implements ItemService {
             item.setAvailable(itemDto.getAvailable());
         }
         Item updatedItem = itemRepository.update(item);
-        log.info("Item updated: itemId={}, ownerId={}", updatedItem.getId(), userId);
+        log.info("Вещь обновлена: itemId={}, ownerId={}", updatedItem.getId(), userId);
         return ItemMapper.toDto(updatedItem);
     }
 
@@ -75,28 +75,28 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Collection<ItemDto> search(String text) {
         if (text == null || text.isBlank()) {
-            log.info("Item search skipped: blank text");
+            log.info("Поиск вещей пропущен: пустой текст запроса");
             return Collections.emptyList();
         }
         Collection<ItemDto> result = itemRepository.search(text).stream().map(ItemMapper::toDto).collect(Collectors.toList());
-        log.info("Item search completed: text={}, found={}", text, result.size());
+        log.info("Поиск вещей завершён: текст={}, найдено={}", text, result.size());
         return result;
     }
 
     private Item getItem(Long itemId) {
         return itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Item with id " + itemId + " not found"));
+                .orElseThrow(() -> new NotFoundException("Вещь с id " + itemId + " не найдена"));
     }
 
     private void validateNewItem(ItemDto itemDto) {
         if (itemDto.getName() == null || itemDto.getName().isBlank()) {
-            throw new ValidationException("Item name must not be blank");
+            throw new ValidationException("Название вещи не должно быть пустым");
         }
         if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
-            throw new ValidationException("Item description must not be blank");
+            throw new ValidationException("Описание вещи не должно быть пустым");
         }
         if (itemDto.getAvailable() == null) {
-            throw new ValidationException("Item available status must not be null");
+            throw new ValidationException("Статус доступности вещи должен быть указан");
         }
     }
 }

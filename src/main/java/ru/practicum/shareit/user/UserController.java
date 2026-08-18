@@ -25,31 +25,31 @@ public class UserController {
 
     @PostMapping
     public UserDto create(@RequestBody UserDto userDto) {
-        log.info("Create user request: email={}", userDto.getEmail());
+        log.info("Запрос на создание пользователя: email={}", userDto.getEmail());
         return userService.create(userDto);
     }
 
     @PatchMapping("/{userId}")
     public UserDto update(@PathVariable Long userId, @RequestBody UserDto userDto) {
-        log.info("Update user request: userId={}", userId);
+        log.info("Запрос на обновление пользователя: userId={}", userId);
         return userService.update(userId, userDto);
     }
 
     @GetMapping("/{userId}")
     public UserDto getById(@PathVariable Long userId) {
-        log.info("Get user request: userId={}", userId);
+        log.info("Запрос на получение пользователя: userId={}", userId);
         return userService.getById(userId);
     }
 
     @GetMapping
     public Collection<UserDto> getAll() {
-        log.info("Get all users request");
+        log.info("Запрос на получение списка пользователей");
         return userService.getAll();
     }
 
     @DeleteMapping("/{userId}")
     public void delete(@PathVariable Long userId) {
-        log.info("Delete user request: userId={}", userId);
+        log.info("Запрос на удаление пользователя: userId={}", userId);
         userService.delete(userId);
     }
 }

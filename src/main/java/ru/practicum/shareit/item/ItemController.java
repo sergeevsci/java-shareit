@@ -28,7 +28,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto create(@RequestHeader(USER_ID_HEADER) Long userId, @RequestBody ItemDto itemDto) {
-        log.info("Create item request: userId={}, name={}", userId, itemDto.getName());
+        log.info("Запрос на создание вещи: userId={}, название={}", userId, itemDto.getName());
         return itemService.create(userId, itemDto);
     }
 
@@ -36,25 +36,25 @@ public class ItemController {
     public ItemDto update(@RequestHeader(USER_ID_HEADER) Long userId,
                           @PathVariable Long itemId,
                           @RequestBody ItemDto itemDto) {
-        log.info("Update item request: userId={}, itemId={}", userId, itemId);
+        log.info("Запрос на обновление вещи: userId={}, itemId={}", userId, itemId);
         return itemService.update(userId, itemId, itemDto);
     }
 
     @GetMapping("/{itemId}")
     public ItemDto getById(@PathVariable Long itemId) {
-        log.info("Get item request: itemId={}", itemId);
+        log.info("Запрос на получение вещи: itemId={}", itemId);
         return itemService.getById(itemId);
     }
 
     @GetMapping
     public Collection<ItemDto> getByOwner(@RequestHeader(USER_ID_HEADER) Long userId) {
-        log.info("Get owner items request: userId={}", userId);
+        log.info("Запрос на получение вещей владельца: userId={}", userId);
         return itemService.getByOwner(userId);
     }
 
     @GetMapping("/search")
     public Collection<ItemDto> search(@RequestParam String text) {
-        log.info("Search items request: text={}", text);
+        log.info("Запрос на поиск вещей: текст={}", text);
         return itemService.search(text);
     }
 }

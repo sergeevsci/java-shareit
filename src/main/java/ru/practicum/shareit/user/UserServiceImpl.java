@@ -23,10 +23,10 @@ public class UserServiceImpl implements UserService {
     public UserDto create(UserDto userDto) {
         validateNewUser(userDto);
         if (userRepository.existsByEmail(userDto.getEmail())) {
-            throw new ConflictException("Email already exists");
+            throw new ConflictException("Пользователь с таким email уже существует");
         }
         User savedUser = userRepository.save(UserMapper.toUser(userDto));
-        log.info("User created: userId={}", savedUser.getId());
+        log.info("Пользователь создан: userId={}", savedUser.getId());
         return UserMapper.toDto(savedUser);
     }
 
@@ -35,19 +35,19 @@ public class UserServiceImpl implements UserService {
         User user = getUser(userId);
         if (userDto.getName() != null) {
             if (userDto.getName().isBlank()) {
-                throw new ValidationException("User name must not be blank");
+                throw new ValidationException("Имя пользователя не должно быть пустым");
             }
             user.setName(userDto.getName());
         }
         if (userDto.getEmail() != null) {
             validateEmail(userDto.getEmail());
             if (userRepository.existsByEmailAndIdNot(userDto.getEmail(), userId)) {
-                throw new ConflictException("Email already exists");
+                throw new ConflictException("Пользователь с таким email уже существует");
             }
             user.setEmail(userDto.getEmail());
         }
         User updatedUser = userRepository.update(user);
-        log.info("User updated: userId={}", updatedUser.getId());
+        log.info("Пользователь обновлён: userId={}", updatedUser.getId());
         return UserMapper.toDto(updatedUser);
     }
 
@@ -64,27 +64,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public void delete(Long userId) {
         userRepository.deleteById(userId);
-        log.info("User deleted: userId={}", userId);
+        log.info("Пользователь удалён: userId={}", userId);
     }
 
     public User getUser(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with id " + userId + " not found"));
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
     }
 
     private void validateNewUser(UserDto userDto) {
         if (userDto.getName() == null || userDto.getName().isBlank()) {
-            throw new ValidationException("User name must not be blank");
+            throw new ValidationException("Имя пользователя не должно быть пустым");
         }
         if (userDto.getEmail() == null) {
-            throw new ValidationException("Email must not be null");
+            throw new ValidationException("Email не должен быть пустым");
         }
         validateEmail(userDto.getEmail());
     }
 
     private void validateEmail(String email) {
         if (email.isBlank() || !email.contains("@")) {
-            throw new ValidationException("Email is invalid");
+            throw new ValidationException("Некорректный email");
         }
     }
 }
