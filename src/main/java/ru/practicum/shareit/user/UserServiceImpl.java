@@ -7,6 +7,7 @@ import ru.practicum.shareit.exception.ConflictException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
@@ -18,7 +19,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDto create(UserDto userDto) {
+    public UserDto create(UserRequestDto userDto) {
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new ConflictException("Пользователь с таким email уже существует");
         }
@@ -28,7 +29,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto update(Long userId, UserDto userDto) {
+    public UserDto update(Long userId, UserRequestDto userDto) {
         User user = getUser(userId);
         if (userDto.getName() != null) {
             if (userDto.getName().isBlank()) {

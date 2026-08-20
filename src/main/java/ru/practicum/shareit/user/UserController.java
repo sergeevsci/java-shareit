@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.user.dto.UserDto;
+import ru.practicum.shareit.user.dto.UserRequestDto;
 import ru.practicum.shareit.validation.Create;
 
 import java.util.Collection;
@@ -24,13 +25,13 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto create(@Validated(Create.class) @RequestBody UserDto userDto) {
+    public UserDto create(@Validated(Create.class) @RequestBody UserRequestDto userDto) {
         log.info("Запрос на создание пользователя: email={}", userDto.getEmail());
         return userService.create(userDto);
     }
 
     @PatchMapping("/{userId}")
-    public UserDto update(@PathVariable Long userId, @RequestBody UserDto userDto) {
+    public UserDto update(@PathVariable Long userId, @RequestBody UserRequestDto userDto) {
         log.info("Запрос на обновление пользователя: userId={}", userId);
         return userService.update(userId, userDto);
     }

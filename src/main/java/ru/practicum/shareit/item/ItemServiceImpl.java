@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
@@ -21,7 +22,7 @@ public class ItemServiceImpl implements ItemService {
     private final UserService userService;
 
     @Override
-    public ItemDto create(Long userId, ItemDto itemDto) {
+    public ItemDto create(Long userId, ItemRequestDto itemDto) {
         User owner = userService.getUser(userId);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
@@ -31,7 +32,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public ItemDto update(Long userId, Long itemId, ItemDto itemDto) {
+    public ItemDto update(Long userId, Long itemId, ItemRequestDto itemDto) {
         Item item = getItem(itemId);
         if (!item.getOwner().getId().equals(userId)) {
             throw new NotFoundException("Редактировать вещь может только владелец");

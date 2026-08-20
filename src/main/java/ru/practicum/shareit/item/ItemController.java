@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.validation.Create;
 
 import java.util.Collection;
@@ -29,7 +30,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto create(@RequestHeader(USER_ID_HEADER) Long userId,
-                          @Validated(Create.class) @RequestBody ItemDto itemDto) {
+                          @Validated(Create.class) @RequestBody ItemRequestDto itemDto) {
         log.info("Запрос на создание вещи: userId={}, название={}", userId, itemDto.getName());
         return itemService.create(userId, itemDto);
     }
@@ -37,7 +38,7 @@ public class ItemController {
     @PatchMapping("/{itemId}")
     public ItemDto update(@RequestHeader(USER_ID_HEADER) Long userId,
                           @PathVariable Long itemId,
-                          @RequestBody ItemDto itemDto) {
+                          @RequestBody ItemRequestDto itemDto) {
         log.info("Запрос на обновление вещи: userId={}, itemId={}", userId, itemId);
         return itemService.update(userId, itemId, itemDto);
     }
