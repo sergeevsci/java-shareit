@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user;
 
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exception.ConflictException;
 
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -14,6 +15,9 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User save(User user) {
+        if (existsByEmail(user.getEmail())) {
+            throw new ConflictException("Пользователь с таким email уже существует");
+        }
         user.setId(nextId++);
         users.put(user.getId(), user);
         return user;
@@ -21,6 +25,9 @@ public class InMemoryUserRepository implements UserRepository {
 
     @Override
     public User update(User user) {
+        if (existsByEmailAndIdNot(user.getEmail(), user.getId())) {
+            throw new ConflictException("Пользователь с таким email уже существует");
+        }
         users.put(user.getId(), user);
         return user;
     }
@@ -40,13 +47,11 @@ public class InMemoryUserRepository implements UserRepository {
         users.remove(id);
     }
 
-    @Override
-    public boolean existsByEmail(String email) {
+    private boolean existsByEmail(String email) {
         return users.values().stream().anyMatch(user -> user.getEmail().equals(email));
     }
 
-    @Override
-    public boolean existsByEmailAndIdNot(String email, Long id) {
+    private boolean existsByEmailAndIdNot(String email, Long id) {
         return users.values().stream()
                 .anyMatch(user -> user.getEmail().equals(email) && !user.getId().equals(id));
     }
