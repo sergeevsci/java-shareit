@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
@@ -14,14 +15,10 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
     private final UserService userService;
-
-    public ItemServiceImpl(ItemRepository itemRepository, UserService userService) {
-        this.itemRepository = itemRepository;
-        this.userService = userService;
-    }
 
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
