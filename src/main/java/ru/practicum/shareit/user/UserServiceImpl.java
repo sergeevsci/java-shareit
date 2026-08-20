@@ -21,7 +21,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
-        validateNewUser(userDto);
         if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new ConflictException("Пользователь с таким email уже существует");
         }
@@ -67,19 +66,10 @@ public class UserServiceImpl implements UserService {
         log.info("Пользователь удалён: userId={}", userId);
     }
 
+    @Override
     public User getUser(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
-    }
-
-    private void validateNewUser(UserDto userDto) {
-        if (userDto.getName() == null || userDto.getName().isBlank()) {
-            throw new ValidationException("Имя пользователя не должно быть пустым");
-        }
-        if (userDto.getEmail() == null) {
-            throw new ValidationException("Email не должен быть пустым");
-        }
-        validateEmail(userDto.getEmail());
     }
 
     private void validateEmail(String email) {

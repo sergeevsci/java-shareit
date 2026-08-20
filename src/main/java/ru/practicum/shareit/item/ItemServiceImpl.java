@@ -7,19 +7,18 @@ import ru.practicum.shareit.exception.ValidationException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserServiceImpl;
+import ru.practicum.shareit.user.UserService;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class ItemServiceImpl implements ItemService {
     private final ItemRepository itemRepository;
-    private final UserServiceImpl userService;
+    private final UserService userService;
 
-    public ItemServiceImpl(ItemRepository itemRepository, UserServiceImpl userService) {
+    public ItemServiceImpl(ItemRepository itemRepository, UserService userService) {
         this.itemRepository = itemRepository;
         this.userService = userService;
     }
@@ -27,7 +26,6 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public ItemDto create(Long userId, ItemDto itemDto) {
         User owner = userService.getUser(userId);
-        validateNewItem(itemDto);
         Item item = ItemMapper.toItem(itemDto);
         item.setOwner(owner);
         Item savedItem = itemRepository.save(item);
@@ -74,10 +72,6 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Collection<ItemDto> search(String text) {
-        if (text == null || text.isBlank()) {
-            log.info("Поиск вещей пропущен: пустой текст запроса");
-            return Collections.emptyList();
-        }
         Collection<ItemDto> result = itemRepository.search(text).stream().map(ItemMapper::toDto).collect(Collectors.toList());
         log.info("Поиск вещей завершён: текст={}, найдено={}", text, result.size());
         return result;
@@ -88,15 +82,4 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + itemId + " не найдена"));
     }
 
-    private void validateNewItem(ItemDto itemDto) {
-        if (itemDto.getName() == null || itemDto.getName().isBlank()) {
-            throw new ValidationException("Название вещи не должно быть пустым");
-        }
-        if (itemDto.getDescription() == null || itemDto.getDescription().isBlank()) {
-            throw new ValidationException("Описание вещи не должно быть пустым");
-        }
-        if (itemDto.getAvailable() == null) {
-            throw new ValidationException("Статус доступности вещи должен быть указан");
-        }
-    }
 }

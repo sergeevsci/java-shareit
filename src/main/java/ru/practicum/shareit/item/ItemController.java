@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,8 +12,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.validation.Create;
 
 import java.util.Collection;
+import java.util.Collections;
 
 @Slf4j
 @RestController
@@ -27,7 +30,8 @@ public class ItemController {
     }
 
     @PostMapping
-    public ItemDto create(@RequestHeader(USER_ID_HEADER) Long userId, @RequestBody ItemDto itemDto) {
+    public ItemDto create(@RequestHeader(USER_ID_HEADER) Long userId,
+                          @Validated(Create.class) @RequestBody ItemDto itemDto) {
         log.info("Запрос на создание вещи: userId={}, название={}", userId, itemDto.getName());
         return itemService.create(userId, itemDto);
     }
@@ -55,6 +59,10 @@ public class ItemController {
     @GetMapping("/search")
     public Collection<ItemDto> search(@RequestParam String text) {
         log.info("Запрос на поиск вещей: текст={}", text);
+        if (text == null || text.isBlank()) {
+            log.info("Поиск вещей пропущен: пустой текст запроса");
+            return Collections.emptyList();
+        }
         return itemService.search(text);
     }
 }
