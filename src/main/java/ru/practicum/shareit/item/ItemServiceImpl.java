@@ -22,6 +22,7 @@ import ru.practicum.shareit.user.UserService;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -32,7 +33,6 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 public class ItemServiceImpl implements ItemService {
     private static final Sort START_DESC = Sort.by(Sort.Direction.DESC, "start");
-    private static final Sort START_ASC = Sort.by(Sort.Direction.ASC, "start");
 
     private final ItemRepository itemRepository;
     private final UserService userService;
@@ -81,10 +81,7 @@ public class ItemServiceImpl implements ItemService {
     public ItemDto getById(Long userId, Long itemId) {
         Item item = getItem(itemId);
         ItemDto itemDto = ItemMapper.toDto(item);
-        addComments(itemDto, commentRepository.findByItemId(itemId));
-        if (userId != null && item.getOwner().getId().equals(userId)) {
-            addBookings(itemDto, itemId);
-        }
+        fillItems(List.of(itemDto), userId != null && item.getOwner().getId().equals(userId));
         log.info("Вещь получена: itemId={}, userId={}", itemId, userId);
         return itemDto;
     }
@@ -94,7 +91,7 @@ public class ItemServiceImpl implements ItemService {
         userService.getUser(userId);
         List<Item> items = itemRepository.findByOwnerId(userId);
         List<ItemDto> itemDtos = items.stream().map(ItemMapper::toDto).collect(Collectors.toList());
-        addBookingsAndComments(itemDtos);
+        fillItems(itemDtos, true);
         log.info("Список вещей владельца получен: ownerId={}, найдено={}", userId, itemDtos.size());
         return itemDtos;
     }
@@ -131,40 +128,33 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException("Вещь с id " + itemId + " не найдена"));
     }
 
-    private void addBookings(ItemDto itemDto, Long itemId) {
-        LocalDateTime now = LocalDateTime.now();
-        bookingRepository.findByItemIdAndStatusAndEndBefore(itemId, BookingStatus.APPROVED, now, START_DESC).stream()
-                .findFirst()
-                .map(BookingMapper::toShortDto)
-                .ifPresent(itemDto::setLastBooking);
-        bookingRepository.findByItemIdAndStatusAndStartAfter(itemId, BookingStatus.APPROVED, now, START_ASC).stream()
-                .findFirst()
-                .map(BookingMapper::toShortDto)
-                .ifPresent(itemDto::setNextBooking);
-    }
-
-    private void addBookingsAndComments(List<ItemDto> itemDtos) {
+    private void fillItems(List<ItemDto> itemDtos, boolean withBookings) {
         if (itemDtos.isEmpty()) {
             return;
         }
         List<Long> itemIds = itemDtos.stream().map(ItemDto::getId).collect(Collectors.toList());
         Map<Long, List<Comment>> commentsByItem = commentRepository.findByItemIdIn(itemIds).stream()
                 .collect(Collectors.groupingBy(comment -> comment.getItem().getId()));
-        Map<Long, List<Booking>> bookingsByItem = bookingRepository
-                .findByItemIdInAndStatus(itemIds, BookingStatus.APPROVED, START_DESC).stream()
-                .collect(Collectors.groupingBy(booking -> booking.getItem().getId()));
+        Map<Long, List<Booking>> bookingsByItem = Collections.emptyMap();
+        if (withBookings) {
+            bookingsByItem = bookingRepository.findByItemIdInAndStatus(itemIds, BookingStatus.APPROVED, START_DESC).stream()
+                    .collect(Collectors.groupingBy(booking -> booking.getItem().getId()));
+        }
         LocalDateTime now = LocalDateTime.now();
         for (ItemDto itemDto : itemDtos) {
             addComments(itemDto, commentsByItem.getOrDefault(itemDto.getId(), Collections.emptyList()));
+            if (!withBookings) {
+                continue;
+            }
             List<Booking> bookings = bookingsByItem.getOrDefault(itemDto.getId(), Collections.emptyList());
             bookings.stream()
                     .filter(booking -> booking.getEnd().isBefore(now))
-                    .findFirst()
+                    .max(Comparator.comparing(Booking::getStart))
                     .map(BookingMapper::toShortDto)
                     .ifPresent(itemDto::setLastBooking);
             bookings.stream()
                     .filter(booking -> booking.getStart().isAfter(now))
-                    .reduce((first, second) -> second)
+                    .min(Comparator.comparing(Booking::getStart))
                     .map(BookingMapper::toShortDto)
                     .ifPresent(itemDto::setNextBooking);
         }

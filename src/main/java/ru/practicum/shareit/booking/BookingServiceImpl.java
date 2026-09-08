@@ -17,6 +17,7 @@ import ru.practicum.shareit.user.UserService;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -42,14 +43,15 @@ public class BookingServiceImpl implements BookingService {
         if (!Boolean.TRUE.equals(item.getAvailable())) {
             throw new ValidationException("Вещь недоступна для бронирования");
         }
-        Booking booking = new Booking(
-                null,
-                bookingDto.getStart(),
+        if (bookingRepository.existsByItemIdAndStatusInAndStartBeforeAndEndAfter(
+                item.getId(),
+                List.of(BookingStatus.WAITING, BookingStatus.APPROVED),
                 bookingDto.getEnd(),
-                item,
-                booker,
-                BookingStatus.WAITING
-        );
+                bookingDto.getStart()
+        )) {
+            throw new ValidationException("Вещь уже забронирована на выбранное время");
+        }
+        Booking booking = BookingMapper.toBooking(bookingDto, item, booker);
         Booking savedBooking = bookingRepository.save(booking);
         log.info("Бронирование создано: bookingId={}, bookerId={}, itemId={}", savedBooking.getId(), userId, item.getId());
         return BookingMapper.toDto(savedBooking);
@@ -58,9 +60,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingDto approve(Long userId, Long bookingId, Boolean approved) {
-        if (approved == null) {
-            throw new ValidationException("Решение по бронированию должно быть указано");
-        }
         Booking booking = getBooking(bookingId);
         if (!booking.getItem().getOwner().getId().equals(userId)) {
             throw new AccessDeniedException("Подтверждать бронирование может только владелец вещи");

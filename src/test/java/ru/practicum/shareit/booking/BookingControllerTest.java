@@ -88,6 +88,22 @@ class BookingControllerTest {
     }
 
     @Test
+    void createOverlappingBookingReturnsBadRequest() throws Exception {
+        long ownerId = createUser("Owner", uniqueEmail());
+        long firstBookerId = createUser("First Booker", uniqueEmail());
+        long secondBookerId = createUser("Second Booker", uniqueEmail());
+        long itemId = createItem(ownerId, "Printer", "Color printer", true);
+
+        createBooking(firstBookerId, itemId, 1, 4);
+
+        mockMvc.perform(post("/bookings")
+                        .header(USER_ID_HEADER, secondBookerId)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(bookingJson(itemId, 2, 3)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void approveBookingByNotOwnerReturnsForbidden() throws Exception {
         long ownerId = createUser("Owner", uniqueEmail());
         long bookerId = createUser("Booker", uniqueEmail());
