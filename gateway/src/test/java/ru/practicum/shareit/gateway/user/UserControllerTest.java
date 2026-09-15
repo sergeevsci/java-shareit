@@ -116,4 +116,19 @@ class UserControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().json("{\"error\":\"User not found\"}"));
     }
+
+    @Test
+    void plainServerErrorBodyIsForwarded() throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        when(userClient.getUser(500L)).thenThrow(HttpClientErrorException.create(
+                HttpStatus.BAD_REQUEST,
+                "Bad Request",
+                headers,
+                "plain error".getBytes(StandardCharsets.UTF_8),
+                StandardCharsets.UTF_8));
+
+        mockMvc.perform(get("/users/{userId}", 500L))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("plain error"));
+    }
 }
