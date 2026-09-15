@@ -3,6 +3,7 @@ package ru.practicum.shareit.item;
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
 import ru.practicum.shareit.validation.Create;
@@ -44,9 +47,10 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getById(@PathVariable Long itemId) {
-        log.info("Запрос на получение вещи: itemId={}", itemId);
-        return itemService.getById(itemId);
+    public ItemDto getById(@RequestHeader(value = USER_ID_HEADER, required = false) Long userId,
+                           @PathVariable Long itemId) {
+        log.info("Запрос на получение вещи: userId={}, itemId={}", userId, itemId);
+        return itemService.getById(userId, itemId);
     }
 
     @GetMapping
@@ -63,5 +67,13 @@ public class ItemController {
             return Collections.emptyList();
         }
         return itemService.search(text);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader(USER_ID_HEADER) Long userId,
+                                 @PathVariable Long itemId,
+                                 @Valid @RequestBody CommentRequestDto commentDto) {
+        log.info("Запрос на добавление комментария: userId={}, itemId={}", userId, itemId);
+        return itemService.addComment(userId, itemId, commentDto);
     }
 }
