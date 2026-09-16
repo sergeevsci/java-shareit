@@ -11,7 +11,6 @@ import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserService;
 
-import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -31,12 +30,7 @@ public class ItemRequestServiceImpl implements ItemRequestService {
     @Transactional
     public ItemRequestDto create(Long userId, ItemRequestDto itemRequestDto) {
         User requestor = userService.getUser(userId);
-        ItemRequest itemRequest = new ItemRequest(
-                null,
-                itemRequestDto.getDescription(),
-                requestor,
-                LocalDateTime.now()
-        );
+        ItemRequest itemRequest = ItemRequestMapper.toItemRequest(itemRequestDto, requestor);
         ItemRequest savedRequest = itemRequestRepository.save(itemRequest);
         log.info("Запрос вещи создан: requestId={}, requestorId={}", savedRequest.getId(), userId);
         return ItemRequestMapper.toDto(savedRequest);
