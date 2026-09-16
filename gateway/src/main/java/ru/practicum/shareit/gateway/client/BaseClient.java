@@ -23,6 +23,14 @@ public abstract class BaseClient {
         this.rest = rest;
     }
 
+    protected ResponseEntity<Object> get(String path) {
+        return makeAndSendRequest(HttpMethod.GET, path, null, Map.of(), null);
+    }
+
+    protected ResponseEntity<Object> get(String path, Map<String, Object> parameters) {
+        return makeAndSendRequest(HttpMethod.GET, path, null, parameters, null);
+    }
+
     protected ResponseEntity<Object> get(String path, long userId) {
         return makeAndSendRequest(HttpMethod.GET, path, userId, Map.of(), null);
     }
@@ -31,8 +39,16 @@ public abstract class BaseClient {
         return makeAndSendRequest(HttpMethod.GET, path, userId, parameters, null);
     }
 
+    protected ResponseEntity<Object> post(String path, Object body) {
+        return makeAndSendRequest(HttpMethod.POST, path, null, Map.of(), body);
+    }
+
     protected ResponseEntity<Object> post(String path, long userId, Object body) {
         return makeAndSendRequest(HttpMethod.POST, path, userId, Map.of(), body);
+    }
+
+    protected ResponseEntity<Object> patch(String path, Object body) {
+        return makeAndSendRequest(HttpMethod.PATCH, path, null, Map.of(), body);
     }
 
     protected ResponseEntity<Object> patch(String path, long userId, Object body) {
@@ -43,15 +59,19 @@ public abstract class BaseClient {
         return makeAndSendRequest(HttpMethod.PATCH, path, userId, parameters, body);
     }
 
+    protected ResponseEntity<Object> delete(String path) {
+        return makeAndSendRequest(HttpMethod.DELETE, path, null, Map.of(), null);
+    }
+
     protected ResponseEntity<Object> delete(String path, long userId) {
         return makeAndSendRequest(HttpMethod.DELETE, path, userId, Map.of(), null);
     }
 
     private ResponseEntity<Object> makeAndSendRequest(HttpMethod method,
-                                                      String path,
-                                                      long userId,
-                                                      Map<String, Object> parameters,
-                                                      @Nullable Object body) {
+                                                       String path,
+                                                       @Nullable Long userId,
+                                                       Map<String, Object> parameters,
+                                                       @Nullable Object body) {
         HttpEntity<Object> requestEntity = new HttpEntity<>(body, defaultHeaders(userId));
         UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(serverUrl + path);
         parameters.forEach(builder::queryParam);
@@ -59,11 +79,11 @@ public abstract class BaseClient {
         return rest.exchange(url, method, requestEntity, Object.class);
     }
 
-    private HttpHeaders defaultHeaders(long userId) {
+    private HttpHeaders defaultHeaders(@Nullable Long userId) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.setAccept(List.of(MediaType.APPLICATION_JSON));
-        if (userId != 0) {
+        if (userId != null) {
             headers.set(USER_ID_HEADER, String.valueOf(userId));
         }
         return headers;
