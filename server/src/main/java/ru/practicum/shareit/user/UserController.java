@@ -2,7 +2,6 @@ package ru.practicum.shareit.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.dto.UserRequestDto;
-import ru.practicum.shareit.validation.Create;
 
 import java.util.Collection;
 
@@ -25,7 +23,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto create(@Validated(Create.class) @RequestBody UserRequestDto userDto) {
+    public UserDto create(@RequestBody UserRequestDto userDto) {
         log.info("Запрос на создание пользователя: email={}", userDto.getEmail());
         return userService.create(userDto);
     }

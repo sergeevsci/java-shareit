@@ -45,15 +45,6 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void createRequestWithBlankDescriptionReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/requests")
-                        .header("X-Sharer-User-Id", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"description\":\" \"}"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void createRequestWithoutUserIdHeaderReturnsBadRequest() throws Exception {
         mockMvc.perform(post("/requests")
                         .contentType(MediaType.APPLICATION_JSON)

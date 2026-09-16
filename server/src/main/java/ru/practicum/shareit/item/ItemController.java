@@ -2,8 +2,6 @@ package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
 import lombok.RequiredArgsConstructor;
-import org.springframework.validation.annotation.Validated;
-import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +15,6 @@ import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.CommentRequestDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemRequestDto;
-import ru.practicum.shareit.validation.Create;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -33,7 +30,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto create(@RequestHeader(USER_ID_HEADER) Long userId,
-                          @Validated(Create.class) @RequestBody ItemRequestDto itemDto) {
+                          @RequestBody ItemRequestDto itemDto) {
         log.info("Запрос на создание вещи: userId={}, название={}", userId, itemDto.getName());
         return itemService.create(userId, itemDto);
     }
@@ -73,7 +70,7 @@ public class ItemController {
     @PostMapping("/{itemId}/comment")
     public CommentDto addComment(@RequestHeader(USER_ID_HEADER) Long userId,
                                  @PathVariable Long itemId,
-                                 @Valid @RequestBody CommentRequestDto commentDto) {
+                                 @RequestBody CommentRequestDto commentDto) {
         log.info("Запрос на добавление комментария: userId={}, itemId={}", userId, itemId);
         return itemService.addComment(userId, itemId, commentDto);
     }

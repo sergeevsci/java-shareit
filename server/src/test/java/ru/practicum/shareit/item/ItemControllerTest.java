@@ -46,15 +46,6 @@ class ItemControllerTest {
     }
 
     @Test
-    void createItemWithBlankNameReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/items")
-                        .header("X-Sharer-User-Id", 1L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\" \",\"description\":\"Описание\",\"available\":true}"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void createItemWithoutUserIdHeaderReturnsBadRequest() throws Exception {
         mockMvc.perform(post("/items")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -126,12 +117,4 @@ class ItemControllerTest {
                 .andExpect(jsonPath("$.text").value("Отличная вещь"));
     }
 
-    @Test
-    void addCommentWithBlankTextReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/items/{itemId}/comment", 1L)
-                        .header("X-Sharer-User-Id", 2L)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"text\":\" \"}"))
-                .andExpect(status().isBadRequest());
-    }
 }

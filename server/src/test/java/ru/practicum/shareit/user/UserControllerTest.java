@@ -43,22 +43,6 @@ class UserControllerTest {
     }
 
     @Test
-    void createUserWithInvalidEmailReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"User\",\"email\":\"invalid-email\"}"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void createUserWithBlankNameReturnsBadRequest() throws Exception {
-        mockMvc.perform(post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\" \",\"email\":\"user@example.com\"}"))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void updateUserReturnsUpdatedUser() throws Exception {
         when(userService.update(any(Long.class), any(UserRequestDto.class)))
                 .thenReturn(new UserDto(1L, "Updated", "user@example.com"));
