@@ -53,6 +53,15 @@ class BookingControllerTest {
     }
 
     @Test
+    void createBookingWithPastStartReturnsBadRequest() throws Exception {
+        mockMvc.perform(post("/bookings")
+                        .header("X-Sharer-User-Id", 3L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"start\":\"2020-09-20T10:00:00\",\"end\":\"2026-09-21T10:00:00\",\"itemId\":1}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
     void createBookingWithoutUserIdHeaderReturnsBadRequest() throws Exception {
         mockMvc.perform(post("/bookings")
                         .contentType(MediaType.APPLICATION_JSON)
