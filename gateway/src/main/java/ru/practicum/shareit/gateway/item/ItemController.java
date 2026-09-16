@@ -44,10 +44,10 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ResponseEntity<Object> getById(@RequestHeader(value = USER_ID_HEADER, required = false) Long userId,
-                                          @PathVariable Long itemId) {
-        log.info("Запрос на получение вещи: itemId={}", itemId);
-        return itemClient.getItem(userId == null ? 0 : userId, itemId);
+    public ResponseEntity<Object> getById(@RequestHeader(USER_ID_HEADER) Long userId,
+                                           @PathVariable Long itemId) {
+        log.info("Запрос на получение вещи: userId={}, itemId={}", userId, itemId);
+        return itemClient.getItem(userId, itemId);
     }
 
     @GetMapping
@@ -57,13 +57,14 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Object> search(@RequestParam String text) {
-        log.info("Запрос на поиск вещей: текст={}", text);
+    public ResponseEntity<Object> search(@RequestHeader(USER_ID_HEADER) Long userId,
+                                         @RequestParam String text) {
+        log.info("Запрос на поиск вещей: userId={}, текст={}", userId, text);
         if (text == null || text.isBlank()) {
             log.info("Поиск вещей пропущен: пустой текст запроса");
             return ResponseEntity.ok(Collections.emptyList());
         }
-        return itemClient.searchItems(text);
+        return itemClient.searchItems(userId, text);
     }
 
     @PostMapping("/{itemId}/comment")

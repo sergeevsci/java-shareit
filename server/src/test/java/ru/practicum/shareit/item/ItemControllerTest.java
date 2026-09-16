@@ -97,14 +97,18 @@ class ItemControllerTest {
     void searchWithTextReturnsItems() throws Exception {
         when(itemService.search("дрель")).thenReturn(List.of(itemDto));
 
-        mockMvc.perform(get("/items/search").param("text", "дрель"))
+        mockMvc.perform(get("/items/search")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("text", "дрель"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value("Дрель"));
     }
 
     @Test
     void searchWithBlankTextReturnsEmptyList() throws Exception {
-        mockMvc.perform(get("/items/search").param("text", " "))
+        mockMvc.perform(get("/items/search")
+                        .header("X-Sharer-User-Id", 1L)
+                        .param("text", " "))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isEmpty());
     }

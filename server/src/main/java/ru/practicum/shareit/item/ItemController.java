@@ -47,8 +47,8 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getById(@RequestHeader(value = USER_ID_HEADER, required = false) Long userId,
-                           @PathVariable Long itemId) {
+    public ItemDto getById(@RequestHeader(USER_ID_HEADER) Long userId,
+                            @PathVariable Long itemId) {
         log.info("Запрос на получение вещи: userId={}, itemId={}", userId, itemId);
         return itemService.getById(userId, itemId);
     }
@@ -60,8 +60,9 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public Collection<ItemDto> search(@RequestParam String text) {
-        log.info("Запрос на поиск вещей: текст={}", text);
+    public Collection<ItemDto> search(@RequestHeader(USER_ID_HEADER) Long userId,
+                                      @RequestParam String text) {
+        log.info("Запрос на поиск вещей: userId={}, текст={}", userId, text);
         if (text == null || text.isBlank()) {
             log.info("Поиск вещей пропущен: пустой текст запроса");
             return Collections.emptyList();

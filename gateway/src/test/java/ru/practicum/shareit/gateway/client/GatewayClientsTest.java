@@ -69,14 +69,14 @@ class GatewayClientsTest {
         expect(HttpMethod.PATCH, "/items/2", 10L);
         expect(HttpMethod.GET, "/items/2", 10L);
         expect(HttpMethod.GET, "/items", 10L);
-        expect(HttpMethod.GET, "/items/search?text=drill", null);
+        expect(HttpMethod.GET, "/items/search?text=drill", 10L);
         expect(HttpMethod.POST, "/items/2/comment", 10L);
 
         assertOk(itemClient.createItem(10L, itemDto));
         assertOk(itemClient.updateItem(10L, 2L, itemDto));
         assertOk(itemClient.getItem(10L, 2L));
         assertOk(itemClient.getItemsByOwner(10L));
-        assertOk(itemClient.searchItems("drill"));
+        assertOk(itemClient.searchItems(10L, "drill"));
         assertOk(itemClient.addComment(10L, 2L, new CommentRequestDto("Good")));
 
         server.verify();

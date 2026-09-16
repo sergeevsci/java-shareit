@@ -28,8 +28,8 @@ public class ItemClient extends BaseClient {
         return get("/items", userId);
     }
 
-    public ResponseEntity<Object> searchItems(String text) {
-        return get("/items/search", 0, Map.of("text", text));
+    public ResponseEntity<Object> searchItems(long userId, String text) {
+        return get("/items/search", userId, Map.of("text", text));
     }
 
     public ResponseEntity<Object> addComment(long userId, long itemId, CommentRequestDto commentDto) {
