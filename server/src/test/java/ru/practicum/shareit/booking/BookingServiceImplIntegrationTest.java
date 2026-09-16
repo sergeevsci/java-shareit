@@ -10,11 +10,10 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.ItemService;
-import ru.practicum.shareit.item.dto.ItemRequestDto;
-import ru.practicum.shareit.user.UserService;
-import ru.practicum.shareit.user.dto.UserDto;
-import ru.practicum.shareit.user.dto.UserRequestDto;
+import ru.practicum.shareit.item.ItemRepository;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.user.User;
+import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -32,10 +31,10 @@ class BookingServiceImplIntegrationTest {
     private BookingService bookingService;
 
     @Autowired
-    private UserService userService;
+    private UserRepository userRepository;
 
     @Autowired
-    private ItemService itemService;
+    private ItemRepository itemRepository;
 
     @Test
     void createBookingReturnsWaitingBooking() {
@@ -141,12 +140,14 @@ class BookingServiceImplIntegrationTest {
     }
 
     private long createUser(String name, String email) {
-        UserDto user = userService.create(new UserRequestDto(name, email));
+        User user = userRepository.save(new User(null, name, email));
         return user.getId();
     }
 
     private long createItem(long ownerId, String name, String description, boolean available) {
-        return itemService.create(ownerId, new ItemRequestDto(name, description, available, null)).getId();
+        User owner = userRepository.findById(ownerId).orElseThrow();
+        Item item = itemRepository.save(new Item(null, name, description, available, owner, null));
+        return item.getId();
     }
 
     private BookingRequestDto bookingRequest(long itemId, int startDays, int endDays) {
