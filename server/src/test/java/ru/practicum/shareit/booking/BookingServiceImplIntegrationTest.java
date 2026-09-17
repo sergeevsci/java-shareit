@@ -1,5 +1,6 @@
 package ru.practicum.shareit.booking;
 
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,10 +11,8 @@ import ru.practicum.shareit.booking.dto.BookingRequestDto;
 import ru.practicum.shareit.exception.AccessDeniedException;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.exception.ValidationException;
-import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.User;
-import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
@@ -31,10 +30,7 @@ class BookingServiceImplIntegrationTest {
     private BookingService bookingService;
 
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ItemRepository itemRepository;
+    private EntityManager entityManager;
 
     @Test
     void createBookingReturnsWaitingBooking() {
@@ -140,13 +136,15 @@ class BookingServiceImplIntegrationTest {
     }
 
     private long createUser(String name, String email) {
-        User user = userRepository.save(new User(null, name, email));
+        User user = new User(null, name, email);
+        entityManager.persist(user);
         return user.getId();
     }
 
     private long createItem(long ownerId, String name, String description, boolean available) {
-        User owner = userRepository.findById(ownerId).orElseThrow();
-        Item item = itemRepository.save(new Item(null, name, description, available, owner, null));
+        User owner = entityManager.find(User.class, ownerId);
+        Item item = new Item(null, name, description, available, owner, null);
+        entityManager.persist(item);
         return item.getId();
     }
 
